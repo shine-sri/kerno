@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 )
 
@@ -124,11 +123,7 @@ func TestDiskIOMetrics(t *testing.T) {
 func TestInfoMetric(t *testing.T) {
 	InfoMetric.WithLabelValues("dev").Set(1)
 
-	gauge := InfoMetric.WithLabelValues("dev")
-	g, ok := gauge.(prometheus.Gauge)
-	if !ok {
-		t.Fatal("InfoMetric label value is not a Gauge")
-	}
+	g := InfoMetric.WithLabelValues("dev")
 	if got := testutil.ToFloat64(g); got != 1 {
 		t.Errorf("InfoMetric = %v, want 1", got)
 	}

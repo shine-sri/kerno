@@ -6,6 +6,7 @@ package cli
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -122,7 +123,7 @@ func readStdin() (string, error) {
 	for i := 0; i < 100 && scanner.Scan(); i++ {
 		lines = append(lines, scanner.Text())
 	}
-	if err := scanner.Err(); err != nil && err != io.EOF {
+	if err := scanner.Err(); err != nil && !errors.Is(err, io.EOF) {
 		return "", err
 	}
 	return strings.Join(lines, "\n"), nil

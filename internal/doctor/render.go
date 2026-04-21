@@ -72,14 +72,12 @@ func (r *PrettyRenderer) Render(w io.Writer, report *Report) error {
 		fmt.Fprintln(w)
 		for i, f := range actionFindings {
 			urgency := "[MONITOR]"
-			if f.Severity == SeverityCritical {
-				if f.ETA != nil && *f.ETA < 5*time.Minute {
-					urgency = "[NOW]    "
-				} else {
-					urgency = "[NOW]    "
-				}
-			} else if f.Severity == SeverityWarning {
+			switch f.Severity {
+			case SeverityCritical:
+				urgency = "[NOW]    "
+			case SeverityWarning:
 				urgency = "[5 MIN]  "
+			case SeverityInfo:
 			}
 			fmt.Fprintf(w, "  %d. %s %s\n", i+1, urgency, f.Title)
 		}
@@ -189,15 +187,15 @@ type JSONRenderer struct {
 
 // jsonReport is the JSON-serializable report structure.
 type jsonReport struct {
-	Hostname        string          `json:"hostname"`
-	KernelVer       string          `json:"kernelVersion"`
-	Arch            string          `json:"arch"`
-	StartTime       time.Time       `json:"startTime"`
-	EndTime         time.Time       `json:"endTime"`
-	Duration        string          `json:"duration"`
-	Findings        []jsonFinding   `json:"findings"`
-	Summary         reportSummary   `json:"summary"`
-	Analysis        *AnalysisResponse `json:"analysis,omitempty"`
+	Hostname  string            `json:"hostname"`
+	KernelVer string            `json:"kernelVersion"`
+	Arch      string            `json:"arch"`
+	StartTime time.Time         `json:"startTime"`
+	EndTime   time.Time         `json:"endTime"`
+	Duration  string            `json:"duration"`
+	Findings  []jsonFinding     `json:"findings"`
+	Summary   reportSummary     `json:"summary"`
+	Analysis  *AnalysisResponse `json:"analysis,omitempty"`
 }
 
 type jsonFinding struct {

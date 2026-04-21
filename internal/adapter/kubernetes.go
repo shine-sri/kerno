@@ -32,10 +32,10 @@ type KubernetesAdapter struct {
 	mu    sync.RWMutex
 	index map[string]*PodInfo // cgroup path suffix → pod info
 
-	client       *http.Client
-	kubeletURL   string
-	refreshRate  time.Duration
-	cancelFn     context.CancelFunc
+	client      *http.Client
+	kubeletURL  string
+	refreshRate time.Duration
+	cancelFn    context.CancelFunc
 }
 
 // PodInfo holds the K8s metadata extracted for a pod.
@@ -74,14 +74,14 @@ func (a *KubernetesAdapter) Start(ctx context.Context) error {
 		"kubeletURL", a.kubeletURL,
 	)
 
+	ctx, cancel := context.WithCancel(ctx)
+
 	// Initial index build with retries.
-	if err := a.refreshIndex(); err != nil {
+	if err := a.refreshIndex(ctx); err != nil {
 		a.logger.Warn("initial pod index build failed, will retry",
 			"error", err,
 		)
 	}
-
-	ctx, cancel := context.WithCancel(ctx)
 	a.cancelFn = cancel
 
 	go a.refreshLoop(ctx)
@@ -136,7 +136,7 @@ func (a *KubernetesAdapter) refreshLoop(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			if err := a.refreshIndex(); err != nil {
+			if err := a.refreshIndex(ctx); err != nil {
 				a.logger.Debug("pod index refresh failed", "error", err)
 			}
 		}
@@ -144,8 +144,8 @@ func (a *KubernetesAdapter) refreshLoop(ctx context.Context) {
 }
 
 // refreshIndex fetches the pod list from Kubelet and rebuilds the index.
-func (a *KubernetesAdapter) refreshIndex() error {
-	pods, err := a.fetchPods()
+func (a *KubernetesAdapter) refreshIndex(ctx context.Context) error {
+	pods, err := a.fetchPods(ctx)
 	if err != nil {
 		return err
 	}
@@ -169,8 +169,8 @@ type kubeletPodList struct {
 }
 
 type kubeletPod struct {
-	Metadata kubeletMeta   `json:"metadata"`
-	Spec     kubeletSpec   `json:"spec"`
+	Metadata kubeletMeta `json:"metadata"`
+	Spec     kubeletSpec `json:"spec"`
 }
 
 type kubeletMeta struct {
@@ -191,8 +191,12 @@ type kubeletOwnerRef struct {
 }
 
 // fetchPods retrieves the pod list from the Kubelet read-only API.
-func (a *KubernetesAdapter) fetchPods() ([]*PodInfo, error) {
-	resp, err := a.client.Get(a.kubeletURL + "/pods")
+func (a *KubernetesAdapter) fetchPods(ctx context.Context) ([]*PodInfo, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, a.kubeletURL+"/pods", nil)
+	if err != nil {
+		return nil, fmt.Errorf("kubelet request build: %w", err)
+	}
+	resp, err := a.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("kubelet request: %w", err)
 	}

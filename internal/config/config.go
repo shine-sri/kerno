@@ -140,15 +140,15 @@ func Default() *Config {
 		Doctor: DoctorConfig{
 			Duration: 30 * time.Second,
 			Thresholds: DoctorThresholds{
-				SyscallP99WarningNs:  100_000_000,  // 100ms
-				SyscallP99CriticalNs: 500_000_000,  // 500ms
-				TCPRetransmitPct:     2.0,           // 2%
-				OOMMemoryPct:         90.0,          // 90%
-				DiskP99WarningNs:     50_000_000,    // 50ms
-				DiskP99CriticalNs:    200_000_000,   // 200ms
-				SchedDelayWarningNs:  5_000_000,     // 5ms
-				SchedDelayCriticalNs: 20_000_000,    // 20ms
-				FDGrowthPerSec:       10.0,          // 10 FDs/sec
+				SyscallP99WarningNs:  100_000_000, // 100ms
+				SyscallP99CriticalNs: 500_000_000, // 500ms
+				TCPRetransmitPct:     2.0,         // 2%
+				OOMMemoryPct:         90.0,        // 90%
+				DiskP99WarningNs:     50_000_000,  // 50ms
+				DiskP99CriticalNs:    200_000_000, // 200ms
+				SchedDelayWarningNs:  5_000_000,   // 5ms
+				SchedDelayCriticalNs: 20_000_000,  // 20ms
+				FDGrowthPerSec:       10.0,        // 10 FDs/sec
 			},
 		},
 		AI: AIConfig{

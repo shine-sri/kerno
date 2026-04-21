@@ -68,12 +68,12 @@ Add --ai to enrich findings with AI-powered analysis (requires API key).`,
 			}
 
 			return runDoctor(cmd.Context(), doctorOpts{
-				duration:  duration,
-				exitCode:  exitCode,
+				duration:   duration,
+				exitCode:   exitCode,
 				continuous: continuous,
-				interval:  interval,
-				output:    output,
-				aiEnabled: aiEnabled,
+				interval:   interval,
+				output:     output,
+				aiEnabled:  aiEnabled,
 			})
 		},
 	}

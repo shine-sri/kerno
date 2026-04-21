@@ -192,10 +192,10 @@ func runWatchTCP(ctx context.Context, opts watchTCPOpts) error {
 }
 
 type tcpSummaryEntry struct {
-	Key         tcpConnKey
-	Stats       *tcpConnStats
-	RTTP50      time.Duration
-	RTTP99      time.Duration
+	Key    tcpConnKey
+	Stats  *tcpConnStats
+	RTTP50 time.Duration
+	RTTP99 time.Duration
 }
 
 func filterTCPEntries(agg map[tcpConnKey]*tcpConnStats, opts watchTCPOpts) []tcpSummaryEntry {
@@ -264,9 +264,9 @@ func renderTCPSummary(entries []tcpSummaryEntry, interval time.Duration) {
 }
 
 type tcpSummaryJSONOut struct {
-	Timestamp   string                `json:"timestamp"`
-	Interval    string                `json:"interval"`
-	Connections []tcpConnJSONOut      `json:"connections"`
+	Timestamp   string           `json:"timestamp"`
+	Interval    string           `json:"interval"`
+	Connections []tcpConnJSONOut `json:"connections"`
 }
 
 type tcpConnJSONOut struct {

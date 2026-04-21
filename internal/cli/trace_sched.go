@@ -128,11 +128,11 @@ func runTraceSched(ctx context.Context, opts traceSchedOpts) error {
 }
 
 type schedEventOut struct {
-	Timestamp    string `json:"timestamp"`
-	PID          uint32 `json:"pid"`
-	Comm         string `json:"comm"`
-	CPU          uint32 `json:"cpu"`
-	RunqDelayNs  uint64 `json:"runqDelayNs"`
+	Timestamp   string `json:"timestamp"`
+	PID         uint32 `json:"pid"`
+	Comm        string `json:"comm"`
+	CPU         uint32 `json:"cpu"`
+	RunqDelayNs uint64 `json:"runqDelayNs"`
 }
 
 func schedEventJSON(e *bpf.SchedEvent) schedEventOut {

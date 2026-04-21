@@ -240,10 +240,10 @@ func renderFDSummary(entries []fdSummaryEntry, interval time.Duration, threshold
 }
 
 type fdSummaryJSONOut struct {
-	Timestamp string            `json:"timestamp"`
-	Interval  string            `json:"interval"`
-	Threshold float64           `json:"threshold"`
-	Processes []fdProcJSONOut   `json:"processes"`
+	Timestamp string          `json:"timestamp"`
+	Interval  string          `json:"interval"`
+	Threshold float64         `json:"threshold"`
+	Processes []fdProcJSONOut `json:"processes"`
 }
 
 type fdProcJSONOut struct {

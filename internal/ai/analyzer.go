@@ -15,10 +15,10 @@ import (
 // DefaultAnalyzer implements doctor.Analyzer by sending findings to an LLM
 // provider and parsing the structured response.
 type DefaultAnalyzer struct {
-	provider    Provider
-	cache       *Cache
-	privacy     PrivacyMode
-	logger      *slog.Logger
+	provider Provider
+	cache    *Cache
+	privacy  PrivacyMode
+	logger   *slog.Logger
 }
 
 // AnalyzerConfig holds configuration for constructing a DefaultAnalyzer.

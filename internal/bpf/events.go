@@ -173,12 +173,12 @@ func (e *DiskEvent) OpString() string {
 
 // SchedEvent matches struct sched_event in kerno.h.
 type SchedEvent struct {
-	TimestampNs  uint64
-	RunqDelayNs  uint64
-	CgroupID     uint64
-	PID          uint32
-	CPU          uint32
-	Comm         [TaskCommLen]byte
+	TimestampNs uint64
+	RunqDelayNs uint64
+	CgroupID    uint64
+	PID         uint32
+	CPU         uint32
+	Comm        [TaskCommLen]byte
 }
 
 // CommString returns the process name.

@@ -6,6 +6,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -106,7 +107,7 @@ func runStart(ctx context.Context, opts startOpts) error {
 			)
 			continue
 		}
-		closers = append(closers, func() { closer.Close() })
+		closers = append(closers, func() { _ = closer.Close() })
 		loadedCount++
 		logger.Info("loaded eBPF program", "program", l.Name())
 	}
@@ -146,13 +147,14 @@ func runStart(ctx context.Context, opts startOpts) error {
 		mux.Handle("/metrics", promhttp.HandlerFor(metrics.Registry, promhttp.HandlerOpts{}))
 
 		httpServer = &http.Server{
-			Addr:    promAddr,
-			Handler: mux,
+			Addr:              promAddr,
+			Handler:           mux,
+			ReadHeaderTimeout: 10 * time.Second,
 		}
 
 		go func() {
 			logger.Info("starting HTTP server", "addr", promAddr)
-			if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 				logger.Error("HTTP server error", "error", err)
 			}
 		}()
@@ -217,7 +219,6 @@ func buildLoaders(logger *slog.Logger) ([]bpf.Loader, *bpf.LoaderSet) {
 	return loaders, set
 }
 
-
 // healthzHandler returns the health check handler.
 func healthzHandler(loaded, total int) http.HandlerFunc {
 	return func(w http.ResponseWriter, _ *http.Request) {
@@ -230,4 +231,3 @@ func healthzHandler(loaded, total int) http.HandlerFunc {
 		})
 	}
 }
-

@@ -111,7 +111,8 @@ func runTraceSyscall(ctx context.Context, opts traceSyscallOpts) error {
 	if opts.top > 0 {
 		return traceSyscallTop(ctx, events, opts)
 	}
-	return traceSyscallStream(ctx, events, opts)
+	traceSyscallStream(ctx, events, opts)
+	return nil
 }
 
 // matchSyscallFilter checks if a syscall event matches the --filter flag.
@@ -128,16 +129,16 @@ func matchSyscallFilter(event *bpf.SyscallEvent, filter string) bool {
 	return strings.EqualFold(name, filter)
 }
 
-func traceSyscallStream(ctx context.Context, events <-chan bpf.RawEvent, opts traceSyscallOpts) error {
+func traceSyscallStream(ctx context.Context, events <-chan bpf.RawEvent, opts traceSyscallOpts) {
 	encoder := json.NewEncoder(os.Stdout)
 
 	for {
 		select {
 		case <-ctx.Done():
-			return nil
+			return
 		case raw, ok := <-events:
 			if !ok {
-				return nil
+				return
 			}
 			event, err := bpf.DecodeSyscallEvent(raw.Data)
 			if err != nil {

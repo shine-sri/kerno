@@ -82,7 +82,7 @@ func TestFilterTCPEntries_ThresholdRTT(t *testing.T) {
 
 func TestComputeFDEntries_Basic(t *testing.T) {
 	agg := map[fdProcKey]*fdProcStats{
-		{PID: 1234, Comm: "leaky"}: {Opens: 100, Closes: 20},
+		{PID: 1234, Comm: "leaky"}:  {Opens: 100, Closes: 20},
 		{PID: 5678, Comm: "stable"}: {Opens: 50, Closes: 50},
 	}
 
@@ -122,8 +122,8 @@ func TestComputeFDEntries_AllBelowThreshold(t *testing.T) {
 
 func TestComputeFDEntries_SortedByGrowthRate(t *testing.T) {
 	agg := map[fdProcKey]*fdProcStats{
-		{PID: 1, Comm: "slow-leak"}:  {Opens: 60, Closes: 10},
-		{PID: 2, Comm: "fast-leak"}:  {Opens: 200, Closes: 10},
+		{PID: 1, Comm: "slow-leak"}:   {Opens: 60, Closes: 10},
+		{PID: 2, Comm: "fast-leak"}:   {Opens: 200, Closes: 10},
 		{PID: 3, Comm: "medium-leak"}: {Opens: 100, Closes: 10},
 	}
 

@@ -276,7 +276,7 @@ func TestKubernetesAdapter_FetchPods(t *testing.T) {
 	a := NewKubernetesAdapter(slog.Default())
 	a.kubeletURL = server.URL
 
-	pods, err := a.fetchPods()
+	pods, err := a.fetchPods(context.Background())
 	if err != nil {
 		t.Fatalf("fetchPods() error: %v", err)
 	}

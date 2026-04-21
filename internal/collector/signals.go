@@ -32,7 +32,7 @@ type Signals struct {
 
 // HostInfo identifies the machine being observed.
 type HostInfo struct {
-	Hostname string `json:"hostname"`
+	Hostname  string `json:"hostname"`
 	KernelVer string `json:"kernelVersion"`
 	OS        string `json:"os"`
 	Arch      string `json:"arch"`
@@ -89,13 +89,13 @@ type TCPSnapshot struct {
 
 // TCPConnectionEntry represents stats for a single TCP 4-tuple.
 type TCPConnectionEntry struct {
-	SrcAddr     string `json:"srcAddr"`
-	DstAddr     string `json:"dstAddr"`
-	SrcPort     uint16 `json:"srcPort"`
-	DstPort     uint16 `json:"dstPort"`
-	Comm        string `json:"comm"`
+	SrcAddr     string        `json:"srcAddr"`
+	DstAddr     string        `json:"dstAddr"`
+	SrcPort     uint16        `json:"srcPort"`
+	DstPort     uint16        `json:"dstPort"`
+	Comm        string        `json:"comm"`
 	RTT         time.Duration `json:"rtt"`
-	Retransmits uint32 `json:"retransmits"`
+	Retransmits uint32        `json:"retransmits"`
 }
 
 // ─── OOM Snapshot ───────────────────────────────────────────────────────────
@@ -170,8 +170,8 @@ type FDSnapshot struct {
 	// Global counters.
 	TotalOpens  uint64  `json:"totalOpens"`
 	TotalCloses uint64  `json:"totalCloses"`
-	NetDelta    int64   `json:"netDelta"`    // opens - closes
-	GrowthRate  float64 `json:"growthRate"`  // FDs per second
+	NetDelta    int64   `json:"netDelta"`   // opens - closes
+	GrowthRate  float64 `json:"growthRate"` // FDs per second
 }
 
 // FDEntry represents FD stats for one process.

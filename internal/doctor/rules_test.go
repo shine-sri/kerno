@@ -124,8 +124,8 @@ func TestEvaluate_OOMKill(t *testing.T) {
 func TestEvaluate_TCPRetransmitStorm(t *testing.T) {
 	signals := &collector.Signals{
 		TCP: &collector.TCPSnapshot{
-			RetransmitRate:   5.0,
-			TotalRetransmits: 200,
+			RetransmitRate:    5.0,
+			TotalRetransmits:  200,
 			ActiveConnections: 50,
 			TopRetransmitters: []collector.TCPConnectionEntry{
 				{SrcAddr: "10.0.1.5", SrcPort: 45000, DstAddr: "10.0.1.10", DstPort: 5432, Retransmits: 80},

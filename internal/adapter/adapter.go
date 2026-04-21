@@ -60,9 +60,9 @@ type Adapter interface {
 type Environment string
 
 const (
-	EnvBareMetal   Environment = "baremetal"
-	EnvKubernetes  Environment = "kubernetes"
-	EnvSystemd     Environment = "systemd"
+	EnvBareMetal  Environment = "baremetal"
+	EnvKubernetes Environment = "kubernetes"
+	EnvSystemd    Environment = "systemd"
 )
 
 // DetectEnvironment probes the runtime to determine where Kerno is running.

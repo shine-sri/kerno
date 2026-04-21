@@ -5,6 +5,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -90,7 +91,8 @@ func initConfig(cmd *cobra.Command) error {
 
 	// Read config file (not an error if it doesn't exist).
 	if err := v.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+		var notFound viper.ConfigFileNotFoundError
+		if !errors.As(err, &notFound) {
 			// Only error if the file exists but can't be parsed.
 			if cfgFile != "" {
 				return fmt.Errorf("reading config file: %w", err)
