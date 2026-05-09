@@ -45,7 +45,8 @@ UI_DIST_DIR      := internal/dashboard/dist/assets
 
 .PHONY: all build build-ebpf build-debug test test-cover test-race lint vet check \
 	fmt clean bpf generate docker help \
-	ui-fetch ui-dev install-tools
+	ui-fetch ui-dev install-tools \
+	verify demo demo-cast bpf-verify
 
 .DEFAULT_GOAL := help
 
@@ -161,6 +162,39 @@ install-tools:
 	@echo "Installing golangci-lint $(GOLANGCI_LINT_VERSION)..."
 	$(GO) install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
 	@echo "Done. Ensure $$GOPATH/bin is in your PATH."
+
+## bpf-verify: Build the standalone BPF verifier load harness
+bpf-verify:
+	$(GO) build -o $(BIN_DIR)/bpf-verify ./cmd/bpf-verify
+	@echo "Built $(BIN_DIR)/bpf-verify (run with sudo)"
+
+## verify: Run the comprehensive 14-phase production-readiness check
+verify: build bpf-verify
+	@./scripts/verify.sh
+
+## demo: Record demo.gif via vhs (https://github.com/charmbracelet/vhs)
+demo: build bpf-verify
+	@if ! command -v vhs >/dev/null; then \
+		echo "vhs not installed. Install with:"; \
+		echo "  go install github.com/charmbracelet/vhs@latest"; \
+		exit 1; \
+	fi
+	vhs demo.tape
+	@echo "Wrote demo.gif"
+	@if command -v gifsicle >/dev/null; then \
+		gifsicle --optimize=3 demo.gif -o demo.gif && \
+		echo "Optimized demo.gif → $$(du -h demo.gif | cut -f1)"; \
+	fi
+
+## demo-cast: Record an asciinema cast (alternative to vhs)
+demo-cast: build bpf-verify
+	@if ! command -v asciinema >/dev/null; then \
+		echo "asciinema not installed: apt install asciinema"; \
+		exit 1; \
+	fi
+	asciinema rec --title "kerno doctor — eBPF incident diagnosis" \
+		--idle-time-limit 2 --command "scripts/demo.sh" demo.cast
+	@echo "Wrote demo.cast"
 
 ## clean: Remove build artifacts
 clean:
