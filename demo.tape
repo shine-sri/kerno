@@ -3,32 +3,36 @@
 #
 # vhs tape — records a kerno doctor demo GIF for the README.
 #
-# Run with:   vhs demo.tape
-# Output:     demo.gif (~5 MB target)
+# Run with:
+#   sudo -v && vhs demo.tape
 #
-# Requirements: vhs (https://github.com/charmbracelet/vhs), bin/kerno,
-# bin/bpf-verify, sudo, kernel >= 5.8 with BTF.
+# `sudo -v` caches the user's password so the recorded shell doesn't
+# block waiting for input. `bin/kerno` is referenced as a relative
+# path so the binary doesn't need to be on $PATH inside the recorded
+# tty.
+#
+# Output:    demo.gif (~5 MB target after gifsicle)
+# Required:  vhs (https://github.com/charmbracelet/vhs), ttyd, ffmpeg.
 
 Output demo.gif
 
 # ── visual config ──
-Set FontSize 14
-Set Width  1100
-Set Height 700
-Set Theme  "Dracula"
+Set Shell      "bash"
+Set FontSize   14
+Set Width      1100
+Set Height     720
+Set Theme      "Dracula"
 Set TypingSpeed 30ms
-Set Padding 20
+Set Padding    20
 
 # ── intro ──
-Type "# Kerno doctor — eBPF-based incident diagnosis in 30 seconds"
+Type "# Kerno doctor — eBPF-based incident diagnosis"
 Sleep 1s
 Enter
-Sleep 500ms
-
 Type "# Step 1: induce a synthetic disk-fsync bottleneck in the background"
 Sleep 800ms
 Enter
-Type "kerno chaos --induce disk-sat --duration 25s --intensity high --yes &"
+Type "./bin/kerno chaos --induce disk-sat --duration 25s --intensity high --yes &"
 Enter
 Sleep 2s
 
@@ -36,12 +40,16 @@ Sleep 2s
 Type "# Step 2: ask kerno to diagnose the system"
 Sleep 600ms
 Enter
-Type "sudo kerno --config scripts/verify-config.yaml doctor --duration 12s"
+Type "sudo ./bin/kerno --config scripts/verify-config.yaml doctor --duration 12s"
 Enter
 
-# Doctor takes ~12s + a few seconds to render. Wait for output.
+# Doctor takes ~12s + a couple seconds to render. Wait for the box-drawn
+# report to finish painting before fading out.
 Sleep 16s
 
 # ── outro ──
-Type "# Done — root cause identified, fix steps printed. Same flow runs in CI."
+Type "# Done — root cause identified, fix steps printed."
+Sleep 2s
+Enter
+Type "# Same flow runs in CI via 'make verify' (62 checks across 13 phases)."
 Sleep 3s

@@ -16,7 +16,29 @@
 
 [**Quick Start**](#quick-start) · [**How It Works**](#how-it-works) · [**Features**](#features) · [**Kubernetes**](#kubernetes-deployment) · [**Docs**](docs/architecture.md)
 
+![demo](demo.gif)
+
 </div>
+
+---
+
+## Status
+
+| Phase | Scope | State |
+|---|---|---|
+| 0 | Build pipeline, CI, releases | ✅ shipped |
+| 1 | 6 eBPF programs, kernel verifier OK | ✅ shipped |
+| 2 | Bounded-memory aggregator, 6 live collectors | ✅ shipped |
+| 3 | `kerno doctor` engine, 11 rules, JSON+pretty renderers, exit codes | ✅ shipped |
+
+End-to-end production-readiness is gated by **`make verify`** — 13 phases, 62 checks, including:
+
+- 6/6 eBPF programs accepted by the kernel verifier on real hardware
+- 4 induce → detect pairings (chaos scenario triggers paired doctor rule)
+- `tc netem` packet-loss → `tcp_retransmit_storm` rule fires
+- `stress-ng --cpu`/`--hdd` → CPU and disk rules fire
+- daemon `/healthz` + `/readyz` + `/metrics` (583-line Prometheus exposition)
+- helm lint + k8s manifest YAML parse + systemd unit + goreleaser config
 
 ---
 
@@ -637,10 +659,10 @@ ai:
 
 See [TODO.md](TODO.md) for the full plan. Headlines:
 
-- **v0.1** - DaemonSet, 6 collectors, 11 rules, Prometheus, AI post-processor - **shipped**
-- **v0.2** - CRD for cluster-wide incident policies, OpenTelemetry OTLP export, Grafana dashboards
-- **v0.3** - historical incident replay, SLO-linked alerts, Slack / PagerDuty integrations
-- **v1.0** - multi-cluster control plane, managed offering (Optiqor Cloud)
+- **v0.1** — DaemonSet, 6 eBPF collectors, 11 rules, Prometheus, AI post-processor, 7 chaos scenarios, 13-phase verify pipeline — **shipped, all gates green on kernel 6.17**
+- **v0.2** — CRD for cluster-wide incident policies, OpenTelemetry OTLP export, Grafana dashboards, sliding-window aggregation
+- **v0.3** — historical incident replay, SLO-linked alerts, Slack / PagerDuty integrations
+- **v1.0** — multi-cluster control plane, managed offering (Optiqor Cloud)
 
 ---
 
@@ -648,16 +670,49 @@ See [TODO.md](TODO.md) for the full plan. Headlines:
 
 ```bash
 # Requirements: Go 1.25+
-# Optional for real eBPF: clang 14+, libbpf-dev, llvm
+# Optional for real eBPF: clang 14+, libbpf-dev, llvm, bpftool
 
-make build          # Build binary (uses BPF stubs - no clang needed)
-make bpf            # Compile eBPF C programs
+make build          # Build binary (uses BPF stubs — no clang needed)
+make generate       # Run bpf2go to produce *_bpfel.go from C sources
+make bpf            # Compile eBPF C programs to .o
+make bpf-verify     # Build the standalone kernel-verifier load harness
 make test           # Run unit tests
 make test-race      # Run with race detector
 make lint           # golangci-lint
-make check          # Full CI check: vet + test + lint
+make check          # vet + test + lint
+make verify         # Comprehensive 13-phase production-readiness check
+make demo           # Record demo.gif via vhs (needs vhs + ttyd + ffmpeg)
+make demo-cast      # Record demo.cast via asciinema (alternative to vhs)
 make docker         # Build Docker image
 ```
+
+**Reproducing the verifier proof end-to-end:**
+
+```bash
+# Install eBPF toolchain
+sudo apt-get install -y clang llvm libbpf-dev linux-tools-$(uname -r) jq
+
+# Build, generate, verify everything in one shot
+make verify         # exits 0 only if all 62 checks pass
+```
+
+**Inducing real incidents to demo or test rule firing:**
+
+```bash
+sudo tc qdisc add dev lo root netem loss 30%   # optional, for tcp-loss
+kerno chaos --induce <scenario> --intensity high --duration 30s
+
+# Available scenarios (kerno chaos --list):
+#   cpu        scheduler_contention
+#   disk-sat   disk_io_bottleneck
+#   fd-leak    fd_leak
+#   memory     oom_imminent
+#   tcp-churn  scheduler_contention
+#   tcp-loss   tcp_retransmit_storm
+#   cascade    multiple
+```
+
+In another shell, `sudo kerno doctor` will catch the induced incident.
 
 ---
 

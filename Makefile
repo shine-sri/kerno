@@ -176,14 +176,21 @@ verify: build bpf-verify
 demo: build bpf-verify
 	@if ! command -v vhs >/dev/null; then \
 		echo "vhs not installed. Install with:"; \
+		echo "  sudo apt-get install -y ttyd ffmpeg"; \
 		echo "  go install github.com/charmbracelet/vhs@latest"; \
+		echo "  export PATH=\"\$$HOME/go/bin:\$$PATH\""; \
 		exit 1; \
 	fi
+	@echo "==> Caching sudo credentials so the recorded shell doesn't hang on the password prompt"
+	@sudo -v
+	@echo "==> Recording demo.gif (this takes ~45s; do not type)"
 	vhs demo.tape
-	@echo "Wrote demo.gif"
+	@echo "Wrote demo.gif ($$(du -h demo.gif | cut -f1))"
 	@if command -v gifsicle >/dev/null; then \
 		gifsicle --optimize=3 demo.gif -o demo.gif && \
 		echo "Optimized demo.gif → $$(du -h demo.gif | cut -f1)"; \
+	else \
+		echo "Tip: install gifsicle for smaller GIFs (apt install gifsicle)"; \
 	fi
 
 ## demo-cast: Record an asciinema cast (alternative to vhs)
