@@ -16,7 +16,7 @@
 
 [**Quick Start**](#quick-start) · [**How It Works**](#how-it-works) · [**Features**](#features) · [**Kubernetes**](#kubernetes-deployment) · [**Docs**](docs/architecture.md)
 
-![demo](demo.gif)
+<img src="demo.gif" alt="kerno doctor demo" width="900" />
 
 </div>
 
