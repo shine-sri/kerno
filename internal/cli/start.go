@@ -124,6 +124,16 @@ func runStart(ctx context.Context, opts startOpts) error {
 	metrics.BPFProgramsLoaded.Set(float64(loadedCount))
 	metrics.InfoMetric.WithLabelValues(version.Version).Set(1)
 
+	// Pre-initialize CounterVec instances so /metrics emits HELP/TYPE
+	// lines immediately, before any event flows. Without this,
+	// CounterVec metrics with no observations don't show up — making
+	// /metrics look empty for the first few seconds and breaking
+	// scrapers that auto-discover metric names from a single fetch.
+	for _, l := range loaders {
+		metrics.CollectorEventsTotal.WithLabelValues(l.Name()).Add(0)
+		metrics.CollectorErrorsTotal.WithLabelValues(l.Name()).Add(0)
+	}
+
 	// Phase 2: Start the metrics bridge — reads BPF events and feeds Prometheus.
 	bridge := metrics.NewBridge(logger)
 	bridge.Start(ctx, loaderSet.Loaders())
