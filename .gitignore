@@ -51,9 +51,7 @@ dist/
 
 # Local-only documents (not tracked in repo)
 ebpf-guide.md
-TODO.md
 BUSINESS-STRATEGY.md
-idea.md
 idea.md
 # Temporary
 tmp/
